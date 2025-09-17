@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi, configApiRef, fetchApiRef } from '@backstage/core-plugin-api';
 
 export const GetGrypeDataDeployed = (data) => {
     const [result, setResult] = useState<any>({});
@@ -8,13 +8,14 @@ export const GetGrypeDataDeployed = (data) => {
 
     // Get Backstage objects
     const config = useApi(configApiRef);
+    const fetchApi = useApi(fetchApiRef);
     const backendUrl = config.getString('backend.baseUrl');
 
     const getGrypeRepoData = async () => {
         if (typeof data.deployedHash === 'undefined') return;
 
         // get grype data from the security plugin's backend
-        await fetch(`${backendUrl}/api/security/grype/deployed?service=${data.service}&deployedHash=${data.deployedHash}`)
+        await fetchApi.fetch(`${backendUrl}/api/security/grype/deployed?service=${data.service}&deployedHash=${data.deployedHash}`)
             .then(response => response.json())
             .then(response => {
                 setResult(response)
