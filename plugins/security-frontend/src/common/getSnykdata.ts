@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi, configApiRef, fetchApiRef } from '@backstage/core-plugin-api';
 
 export const getSnykData = () => {
     const [result, setResult] = useState<any>({});
@@ -9,6 +9,7 @@ export const getSnykData = () => {
 
     // Get Backstage objects
     const config = useApi(configApiRef);
+    const fetchApi = useApi(fetchApiRef);
     const backendUrl = config.getString('backend.baseUrl');
 
     const getProjectId = (data: Array<String>) => {
@@ -22,13 +23,8 @@ export const getSnykData = () => {
     }
 
     const getGrypeRepoData = async () => {
-        const requestOptions = {
-            version: "2024-08-25",
-            limit: 100,
-        };
-
         // Find project ID
-        await fetch(`${backendUrl}/api/proxy/snyk/rest/orgs/ORG_ID/targets?version=2024-08-25&limit=100`, requestOptions)
+        await fetchApi.fetch(`${backendUrl}/api/proxy/snyk/rest/orgs/ORG_ID/targets?version=2024-08-25&limit=100`)
             .then(response => response.json())
             .then(response => {
                 setProjectId(getProjectId(response.data))
