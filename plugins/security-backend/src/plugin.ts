@@ -35,7 +35,7 @@ export const securityPlugin = createBackendPlugin({
         });
         httpRouter.addAuthPolicy({
           path: '/grype',
-          allow: 'unauthenticated',
+          allow: 'user-cookie',
         });
       },
     });
