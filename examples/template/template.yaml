@@ -48,6 +48,8 @@ spec:
           name: ${{ parameters.name }}
 
     # This step publishes the contents of the working directory to GitHub.
+    # If you or your organization prefer another default branch name over 'main'
+    # you can change that here.
     - id: publish
       name: Publish
       action: publish:github
@@ -64,7 +66,7 @@ spec:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
         catalogInfoPath: '/catalog-info.yaml'
 
-   # Let's notify the user that the template has completed using the Notification action
+    # Let's notify the user that the template has completed using the Notification action
     - id: notify
       name: Notify
       action: notification:send

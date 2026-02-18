@@ -31,48 +31,43 @@ backend:
     client: better-sqlite3
     connection: ':memory:'
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
-  reading:
-    allow:
-      - host: 'api.github.com'
 
 integrations:
   github:
-    - host: api.github.com
+    - host: github.com
       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
-      token: ${GITHUB_ACTIONS_PAT}
+      token: ${GITHUB_TOKEN}
     ### Example for how to add your GitHub Enterprise instance using the API:
     # - host: ghe.example.net
-      apiBaseUrl: https://api.github.com
-    #   token: ${GITHUB_ACTIONS_PAT}
+    #   apiBaseUrl: https://ghe.example.net/api/v3
+    #   token: ${GHE_TOKEN}
 
 proxy:
-  endpoints:
-    '/qontract': 
-      target: 'https://app-interface.apps.rosa.appsrep09ue1.03r5.p3.openshiftapps.com/'
-    '/actions':
-      target: "https://api.github.com"
-      headers:
-        Authorization: "Bearer ${GITHUB_ACTIONS_PAT}"
-      credentials: dangerously-allow-unauthenticated
-      allowedHeaders:
-        - Location
-        - Authorization
-        - X-GitHub-Api-Version
-        - Accept
-    '/snyk':
-      target: "https://api.snyk.io"
-      headers:
-        Authorization: "${SNYK_AUTH_TOKEN}"
-        accept: "application/vnd.api+json"
-
-
   ### Example for how to add a proxy endpoint for the frontend.
   ### A typical reason to do this is to handle HTTPS and CORS for internal services.
   # endpoints:
   #   '/test':
   #     target: 'https://example.com'
   #     changeOrigin: true
+
+  ### Security plugin: Grype data is fetched from GitHub Actions artifacts (RedHatInsights org).
+  ### Set GITHUB_TOKEN to a PAT with repo + actions:read. Uncomment to enable Grype.
+  # endpoints:
+  #   actions:
+  #     target: https://api.github.com
+  #     headers:
+  #       Authorization: Bearer ${GITHUB_TOKEN}
+  #       Accept: application/vnd.github+json
+  #       X-GitHub-Api-Version: "2022-11-28"
+  #
+  ## Security plugin: Qontract GraphQL (optional, for deployment hash / "current production").
+  ## Point to your app-interface / qontract GraphQL URL if you use this feature.
+    qontract:
+      target: https://your-qontract-server/graphql
+      changeOrigin: true
+      # headers:
+      #   Authorization: Bearer ${QONTRACT_TOKEN}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -99,11 +94,23 @@ catalog:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
   rules:
-    - allow: [Component, System, User, Group, Resource, Location, Template, API]
+    - allow: [Component, System, API, Resource, Location]
   locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
-      target: ../../catalog/all.yaml
+      target: ../../examples/entities.yaml
 
+    # Local example template
+    - type: file
+      target: ../../examples/template/template.yaml
+      rules:
+        - allow: [Template]
+
+    # Local example organizational data
+    - type: file
+      target: ../../examples/org.yaml
+      rules:
+        - allow: [User, Group]
 
     ## Uncomment these lines to add more example data
     # - type: url
@@ -114,3 +121,11 @@ catalog:
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
     #   rules:
     #     - allow: [User, Group]
+
+kubernetes:
+  # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+
+# see https://backstage.io/docs/permissions/getting-started for more on the permission framework
+permission:
+  # setting this to `false` will disable permissions
+  enabled: true

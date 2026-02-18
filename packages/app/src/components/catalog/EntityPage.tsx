@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Grid } from '@material-ui/core';
 import {
   EntityApiDefinitionCard,
@@ -53,10 +52,12 @@ import {
 
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+
 import {
-  EntitySecurityFrontendContent,
-  OverviewDisplayCardContent
-} from '@RedHatInsights/backstage-plugin-security-frontend';
+  EntityKubernetesContent,
+  isKubernetesAvailable,
+} from '@backstage/plugin-kubernetes';
+import { EntitySecurityFrontendContent } from '@redhatinsights/backstage-plugin-security-frontend';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -77,7 +78,6 @@ const cicdContent = (
         <EntityGithubActionsContent />
       </EntitySwitch.Case>
      */}
-
     <EntitySwitch.Case>
       <EmptyState
         title="No CI/CD available for this entity"
@@ -131,9 +131,6 @@ const overviewContent = (
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
     </Grid>
-    <Grid item md={6}>
-      <OverviewDisplayCardContent variant="gridItem" />
-    </Grid>
     <Grid item md={6} xs={12}>
       <EntityCatalogGraphCard variant="gridItem" height={400} />
     </Grid>
@@ -153,12 +150,16 @@ const serviceEntityPage = (
       {overviewContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/security" title="Security">
-      <EntitySecurityFrontendContent />
-    </EntityLayout.Route>
-
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route
+      path="/kubernetes"
+      title="Kubernetes"
+      if={isKubernetesAvailable}
+    >
+      <EntityKubernetesContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/api" title="API">
@@ -183,6 +184,10 @@ const serviceEntityPage = (
       </Grid>
     </EntityLayout.Route>
 
+    <EntityLayout.Route path="/security" title="Security">
+      <EntitySecurityFrontendContent />
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
@@ -197,6 +202,18 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route
+      path="/kubernetes"
+      title="Kubernetes"
+      if={isKubernetesAvailable}
+    >
+      <EntityKubernetesContent />
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/security" title="Security">
+      <EntitySecurityFrontendContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">
@@ -227,6 +244,10 @@ const defaultEntityPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       {overviewContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/security" title="Security">
+      <EntitySecurityFrontendContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/docs" title="Docs">
