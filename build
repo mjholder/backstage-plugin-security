@@ -1,7 +1,10 @@
 #!/bin/bash
 
-yarn workspace @RedHatInsights/backstage-plugin-security-frontend export-dynamic
-yarn workspace @RedHatInsights/backstage-plugin-security-backend export-dynamic
+# Allow lockfile updates during export-dynamic (janus-cli runs yarn install internally)
+export YARN_ENABLE_IMMUTABLE_INSTALLS=false
+
+yarn workspace @redhatinsights/backstage-plugin-security-frontend export-dynamic
+yarn workspace @redhatinsights/backstage-plugin-security-backend export-dynamic
 
 cd plugins/security-frontend/
 rm *.tgz
@@ -19,8 +22,8 @@ cd ../..
 mv plugins/security-frontend/*.tgz .
 mv plugins/security-backend/*.tgz .
 
-fsha=$(sha256sum RedHatInsights-backstage-plugin-security-frontend-dynamic-0.1.3.tgz | awk '{print $1}' | xxd -r -p | base64)
-bsha=$(sha256sum RedHatInsights-backstage-plugin-security-backend-dynamic-0.1.3.tgz | awk '{print $1}' | xxd -r -p | base64)
+fsha=$(sha256sum redhatinsights-backstage-plugin-security-frontend-dynamic-0.1.4.tgz | awk '{print $1}' | xxd -r -p | base64)
+bsha=$(sha256sum redhatinsights-backstage-plugin-security-backend-dynamic-0.1.4.tgz | awk '{print $1}' | xxd -r -p | base64)
 
 echo "Frontend: sha256-${fsha}"
 echo "Backend:  sha256-${bsha}"
